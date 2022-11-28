@@ -5,7 +5,7 @@ use crate::{
     debug::DebugWithDb,
     key::DatabaseKeyIndex,
     runtime::{
-        local_state::{ActiveQueryGuard, EdgeKind, QueryOrigin},
+        local_state::{ActiveQueryGuard, QueryOrigin},
         StampedValue,
     },
     storage::HasJarsDyn,

@@ -200,7 +200,7 @@ where
                 // valid, then some later input I1 might never have executed at all, so verifying
                 // it is still up to date is meaningless.
                 let last_verified_at = old_memo.verified_at.load();
-                for &input in edges.inputs().iter() {
+                for input in edges.inputs() {
                     if db.maybe_changed_after(input, last_verified_at) {
                         log::debug!(
                             "deep_verify_memo({:?}): input {:?} maybe changed after {:?}",

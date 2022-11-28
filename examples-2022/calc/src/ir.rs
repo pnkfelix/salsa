@@ -265,7 +265,7 @@ pub struct Diagnostic {
 
 // ANCHOR: diagnostic_debug
 impl<Db: ?Sized> salsa::DebugWithDb<Db> for Diagnostic {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>, _db: &Db) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>, _db: &Db, _: bool) -> std::fmt::Result {
         std::fmt::Debug::fmt(self, f)
     }
 }

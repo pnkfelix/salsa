@@ -69,7 +69,7 @@ impl Evaluator<'_> {
                 StatementData::Function(_) => (),
                 StatementData::Print(e) => {
                     let v = self.evaluate_expression(e)?;
-                    write!(output, "{}", v).unwrap(); // FIXME
+                    write!(output, "{} ", v).unwrap(); // FIXME
                 }
             }
         }

@@ -13,6 +13,10 @@ create-missing = false
 additional-css =["mermaid.css"]
 additional-js =["mermaid.min.js", "mermaid-init.js"]
 
+[output.pdf]
+additional-css =["mermaid.css"]
+additional-js =["mermaid.min.js", "mermaid-init.js"]
+
 [output.linkcheck]
 # follow-web-links = true --- this is commented out b/c of false errors
 traverse-parent-directories = false

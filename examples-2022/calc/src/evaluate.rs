@@ -196,7 +196,7 @@ fn execute_example() {
         ",
         expect![[r#"
             Ok(
-                "2",
+                "2 ",
             )
         "#]],
         &[
@@ -208,7 +208,7 @@ fn execute_example() {
             ",
                 expect![[r#"
                 Ok(
-                    "8",
+                    "8 ",
                 )
             "#]],
                 // Everything gets evaluated.
@@ -238,7 +238,7 @@ fn execute_example() {
             ",
                 expect![[r#"
                 Ok(
-                    "8",
+                    "8 ",
                 )
             "#]],
                 // Adding whitespace changes all the spans, but we don't have to re-evaluate each function.

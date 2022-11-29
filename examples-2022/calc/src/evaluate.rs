@@ -36,6 +36,7 @@ pub(crate) fn evaluate_function(
     callee: Function,
     inputs: Vec<OrderedFloat<f64>>,
 ) -> Result<OrderedFloat<f64>, Diagnostic> {
+    crate::WORK_COUNTS.evaluate_step();
     db.push_log(&mut || {
         format!(
             "evaluate_function({:?}, {:?})",

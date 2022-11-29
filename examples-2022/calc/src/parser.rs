@@ -9,6 +9,7 @@ use crate::ir::{
 /// Parse a source program into a compiled program.
 #[salsa::tracked]
 pub fn parse_source_program(db: &dyn crate::Db, source: SourceProgram) -> Program {
+    crate::WORK_COUNTS.parse_step();
     // Get the source text from the database
     let source_text = source.text(db);
 

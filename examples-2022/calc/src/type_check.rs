@@ -9,6 +9,7 @@ use expect_test::expect;
 // ANCHOR: parse_statements
 #[salsa::tracked]
 pub fn type_check_program(db: &dyn crate::Db, program: Program) {
+    crate::WORK_COUNTS.type_check_program_step();
     for statement in program.statements(db) {
         match &statement.data {
             StatementData::Function(f) => type_check_function(db, *f, program),
@@ -19,6 +20,7 @@ pub fn type_check_program(db: &dyn crate::Db, program: Program) {
 
 #[salsa::tracked]
 pub fn type_check_function(db: &dyn crate::Db, function: Function, program: Program) {
+    crate::WORK_COUNTS.type_check_function_step();
     CheckExpression::new(db, program, &function, function.args(db)).check(function.body(db))
 }
 

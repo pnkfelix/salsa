@@ -109,6 +109,7 @@ pub(crate) fn find_function(
     program: Program,
     name: FunctionId,
 ) -> Option<Function> {
+    crate::WORK_COUNTS.resolve_step();
     program
         .statements(db)
         .iter()

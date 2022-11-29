@@ -6,6 +6,7 @@ use crate::{
 
 #[salsa::tracked]
 pub fn compile(db: &dyn crate::Db, source_program: SourceProgram) -> Program {
+    crate::WORK_COUNTS.compile_step();
     let program = parse_source_program(db, source_program);
     type_check_program(db, program);
     program

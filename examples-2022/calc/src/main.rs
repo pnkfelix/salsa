@@ -143,7 +143,15 @@ pub fn main() {
 
         let after = WorkSnapshot::measure();
         let delta = before.delta(after);
-        println!("work delta: {delta:?}");
+        let WorkSnapshot {
+            compile_steps,
+            parse_steps,
+            resolve_steps,
+            type_check_program_steps,
+            type_check_function_steps,
+            evaluate_function_steps,
+        } = delta;
+        println!("work delta: parse: {parse_steps} resolve: {resolve_steps} check_program: {type_check_program_steps} check_fun: {type_check_function_steps} eval_fun: {evaluate_function_steps}");
         match answer {
             Ok(s) => println!("{s}"),
             Err(d) => eprintln!("{d:#?}"), // FIXME attach ariadne crate or something

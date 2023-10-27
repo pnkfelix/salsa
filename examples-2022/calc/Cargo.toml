@@ -10,6 +10,8 @@ derive-new = "0.5.9"
 salsa = { path = "../../components/salsa-2022", package = "salsa-2022" }
 ordered-float = "3.0"
 log = "0.4.5"
+# text-diff = "0.4.0"
+dissimilar = "1.0.7"
 
 [dev-dependencies]
 expect-test = "1.4.0"

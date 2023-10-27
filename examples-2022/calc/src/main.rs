@@ -131,8 +131,49 @@ pub fn main() {
     let mut db = db::Database::default();
     let source_texts = SOURCE_TEXT_SEQ;
     let source_program = SourceProgram::new(&mut db, String::new());
-    for source_text in source_texts {
-        print!("```");
+    let mut last_text = None;
+    for (j, source_text) in source_texts.iter().enumerate() {
+        if let Some(last_text) = last_text {
+            let chunk = dissimilar::diff(last_text, source_text);
+            let delta_count = chunk
+                .iter()
+                .filter(|c| match c {
+                    dissimilar::Chunk::Equal(_) => false,
+                    _ => true,
+                })
+                .count();
+            println!("DIFF FROM LAST START ({delta_count} deltas)");
+            for c in chunk {
+                match c {
+                    dissimilar::Chunk::Equal(s) => print!("{}", s),
+                    dissimilar::Chunk::Insert(s) => {
+                        if s.ends_with("\n") {
+                            let mut s = s.to_string();
+                            s.pop();
+                            println!("[[{}]]", s)
+                        } else {
+                            print!("[[{}]]", s)
+                        }
+                    }
+                    dissimilar::Chunk::Delete(s) => {
+                        if s.ends_with("\n") {
+                            let mut s = s.to_string();
+                            s.pop();
+                            println!("~~{}~~", s);
+                        } else {
+                            print!("~~{}~~", s);
+                        }
+                    }
+                }
+            }
+            println!("DIFF FROM LAST FINIS");
+            println!("");
+        }
+
+        last_text = Some(source_text);
+
+        println!("example source {j}");
+        println!("```");
         print!("{}", source_text);
         println!("```");
         let before = WorkSnapshot::measure();
@@ -151,7 +192,7 @@ pub fn main() {
             type_check_function_steps,
             evaluate_function_steps,
         } = delta;
-        println!("work delta: parse: {parse_steps} resolve: {resolve_steps} check_program: {type_check_program_steps} check_fun: {type_check_function_steps} eval_fun: {evaluate_function_steps}");
+        println!("work delta: compile: {compile_steps} parse: {parse_steps} resolve: {resolve_steps} check_program: {type_check_program_steps} check_fun: {type_check_function_steps} eval_fun: {evaluate_function_steps}");
         match answer {
             Ok(s) => println!("{s}"),
             Err(d) => eprintln!("{d:#?}"), // FIXME attach ariadne crate or something
@@ -159,89 +200,99 @@ pub fn main() {
     }
 }
 
-static SOURCE_TEXT_SEQ: [&'static str; 17] = [
-    r#"
+static SOURCE_TEXT_SEQ: &[&'static str] = &[
+    "\
 fn area_rectangle(w, h) = h * w
 fn area_circle(r) = 3.14 * r * r
-"#,
-    r#"
+",
+    "\
 fn area_rectangle(w, h) = h * w
 fn area_circle(r) = 3.14 * r * r
-"#,
-    r#"
-fn area_rectangle(w, h) = h * w
-fn area_circle(r) = 3.14 * r * r
-print area_rectangle(3, 4)
-"#,
-    r#"
+",
+    "\
 fn area_rectangle(w, h) = h * w
 fn area_circle(r) = 3.14 * r * r
 print area_rectangle(3, 4)
-"#,
-    r#"
-fn area_rectangle(w, h) = w * h
+",
+    "\
+fn area_rectangle(w, h) = h * w
 fn area_circle(r) = 3.14 * r * r
 print area_rectangle(3, 4)
-"#,
-    r#"
-fn area_rectangle(w, h) = h * w
-"#,
-    r#"
-fn area_rectangle(w, h) = h * w
-"#,
-    r#"
-fn area_rectangle(w, h) = h * w
-print area_rectangle(3, 4)
-"#,
-    r#"
-fn area_rectangle(w, h) = h * w
-print area_rectangle(3, 4)
-"#,
-    r#"
+",
+    "\
+fn area_circle(r) = r * r * 3.14
 fn area_rectangle(w, h) = w * h
 print area_rectangle(3, 4)
-"#,
-    r#"
+",
+    "\
+fn area_rectangle(w, h) = w * h
+fn area_circle(r) = r * r * 3.14
+print area_rectangle(3, 4)
+",
+    "\
+fn area_rectangle(w, h) = h * w
+fn area_circle(r) = r * r * 3.14
+print area_rectangle(3, 4)
+",
+    "\
+fn area_rectangle(w, h) = h * w
+",
+    "\
+fn area_rectangle(w, h) = h * w
+",
+    "\
+fn area_rectangle(w, h) = h * w
+print area_rectangle(3, 4)
+",
+    "\
+fn area_rectangle(w, h) = h * w
+print area_rectangle(3, 4)
+",
+    "\
+fn area_rectangle(w, h) = w * h
+print area_rectangle(3, 4)
+",
+    "\
 fn area_triangle(b, h) = 0.5 * b * h
 fn area_circle(r) = 3.14 * r * r
-"#,
-    r#"
+",
+    "\
 fn area_triangle(b, h) = 0.5 * b * h
 fn area_circle(r) = 3.14 * r * r
 print area_triangle(3, 4)
 print area_circle(1)
-"#,
-    r#"
+",
+    "\
 fn area_rectangle(w, h) = w * h
 fn area_circle(r) = 3.14 * r * r
 print area_rectangle(3, 4)
 print area_circle(1)
-"#,
-    r#"
+",
+    "\
 fn area_rectangle(w, h) = w * h
 fn area_circle(r) = 3.14 * r * r
 print area_rectangle(3, 4)
 print area_circle(1)
-"#,
-    r#"
-fn area_rectangle(w, h) = w * h
-fn area_circle(r) = 3.14 * r * r
-print area_rectangle(3, 4)
-print area_circle(1)
-print 2 * 11
-"#,
-    r#"
+",
+    "\
 fn area_rectangle(w, h) = w * h
 fn area_circle(r) = 3.14 * r * r
 print area_rectangle(3, 4)
 print area_circle(1)
 print 2 * 11
-"#,
-    r#"
+",
+    "\
+fn area_rectangle(w, h) = w * h
+fn area_circle(r) = 3.14 * r * r
+print area_rectangle(3, 4)
+print area_circle(1)
+print 2 * 11
+",
+    "\
 fn area_rectangle(w, h) = w * h
 fn area_circle(r) = 3.14 * r * r
 print area_rectangle(2, 11)
 print area_circle(1)
 print 2 * 11
-"#,
+",
 ];
